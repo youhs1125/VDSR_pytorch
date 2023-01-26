@@ -28,7 +28,7 @@ def train_loop(model, dataloader, loss_fn, optimizer, writer, epoch):
             train_loss = cur_loss / 100
             num_pred = pred.cpu().detach().numpy()
             num_y = y.cpu().numpy()
-            train_PSNR = cv2.PSNR(num_pred, num_y)
+            train_PSNR = cv2.PSNR(num_pred*255, num_y*255)
 
             print(f"{iter}-train_loss: {train_loss} PSNR: {train_PSNR}")
             writer.add_scalar("Loss/train", train_loss, epoch)
@@ -47,7 +47,7 @@ def val_loop(model, dataloader, writer, epoch):
         pred = model(X.to(device))
         num_pred = pred.cpu().numpy()
         num_y = y.numpy()
-        val_PSNR += cv2.PSNR(num_pred, num_y)
+        val_PSNR += cv2.PSNR(num_pred*255, num_y*255)
 
     val_PSNR /= len(dataloader)
     print(f"RSNR: {val_PSNR}")
@@ -56,26 +56,23 @@ def val_loop(model, dataloader, writer, epoch):
 
 # define test_loop
 
-def test_loop(model, dataloader):
+def test_loop(model, ds):
     pred = []
 
     model.eval()
     with torch.no_grad():
-        for (X,y) in (tqdm(dataloader,position=0, leave=True, desc="test")):
-            pred.append(model(X).numpy())
+        for img in ds:
+            temp = img.reshape(img.shape[-1],img.shape[0],img.shape[1])
+            input = torch.FloatTensor(temp)
+            pred.append(model(input).numpy())
 
     return pred
 
-def getOrgBicubic(dataloader):
-    origin = []
+def getBicubic(ds):
     bicubic = []
 
-    with torch.no_grad():
-        for (X,y) in (tqdm(dataloader,position=0, leave=True, desc="test")):
-            origin.append(y.numpy().squeeze())
-            temp = X.numpy()
-            temp = temp.reshape(temp.shape[2],temp.shape[2],3)
-            temp = cv2.resize(temp,dsize=(temp.shape[1],temp.shape[1]),interpolation=cv2.INTER_CUBIC)
-            bicubic.append(temp)
+    for img in ds:
+        bicubic.append(cv2.resize(img,dsize=(img.shape[1],img.shape[0]),interpolation=cv2.INTER_CUBIC))
 
-    return origin,bicubic
+
+    return bicubic

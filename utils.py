@@ -4,34 +4,23 @@ import matplotlib.pyplot as plt
 
 def comparePSNR(origins, bicubic, preds1, preds2, preds3 = None):
     # compare predicts with bicubic
-
-    size = preds1[0].shape[-1]
-    preds1 = np.array(preds1)
-    origins = np.array(origins)
-    bicubic = np.array(bicubic)
-    preds2 = np.array(preds2)
-
-    preds1 = preds1.reshape(-1, size, size, 3)
-    preds2 = preds2.reshape(-1,size,size,3)
-    origin = origins.reshape(-1, size, size, 3)
-
-
-
     mPSNR = 0
     bPSNR = 0
     sPSNR = 0
     for i in range(len(preds1)):
-        pred_num = preds1[i]*255
+        pred_num = preds1[i].reshape(preds1[i].shape[1], preds1[i].shape[2], preds1[i].shape[0])
+        pred_num = pred_num * 255
+
         srcnn = preds2[i]*255
-        testi = origin[i]*255
+        testi = origins[i]*255
         bicubici = bicubic[i]*255
 
         print(pred_num.shape, testi.shape, bicubici.shape)
         predPSNR = cv2.PSNR(pred_num, testi)
         bicubicPSNR = cv2.PSNR(bicubici, testi)
         srcnnPSNR = cv2.PSNR(srcnn,testi)
-        print("MODEL --- PSNR: ", predPSNR)
-        print("BICUBIC - PSNR: ", bicubicPSNR)
+        # print("MODEL --- PSNR: ", predPSNR)
+        # print("BICUBIC - PSNR: ", bicubicPSNR)
 
         mPSNR += predPSNR
         bPSNR += bicubicPSNR

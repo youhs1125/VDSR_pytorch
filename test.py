@@ -8,7 +8,7 @@ def doTest():
 
 
     # get dataloader
-    test_dataloader = dataset.getDataset(isTrain=False)
+    origin, ds = dataset.getTestData()
 
 
     # load modelData
@@ -17,12 +17,12 @@ def doTest():
     srcnn = torch.load("models/SRCNN_model.pt")
     srcnn.cpu()
 
-    preds = loop.test_loop(vdsr,test_dataloader)
-    srcnns = loop.test_loop(srcnn,test_dataloader)
+    preds = loop.test_loop(vdsr,ds)
+    srcnns = loop.test_loop(srcnn,ds)
 
-    origins, bicubic = loop.getOrgBicubic(test_dataloader)
+    bicubic = loop.getBicubic(ds)
 
-    utils.comparePSNR(origins,bicubic,preds,srcnns)
+    utils.comparePSNR(origin,bicubic,preds,srcnns)
 
 
 if __name__ == "__main__":

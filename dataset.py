@@ -62,15 +62,16 @@ def getSubImages(file, imgsize):
     print(target[0].shape)
     return target
 
-def downsampling(file):
+def downsampling(file, isTest=False):
     ds = []
-    img_size = file[0].shape[0]
     for i in range(len(file)):
+        img_W,img_H = file[i].shape[0], file[i].shape[1]
         temp = cv2.GaussianBlur(file[i], (0, 0), 1)
-        temp = cv2.resize(temp, dsize=(int(img_size / 2), int(img_size / 2)), interpolation=cv2.INTER_CUBIC)
-        ds.append(cv2.resize(temp, dsize=(img_size, img_size), interpolation=cv2.INTER_CUBIC))
+        temp = cv2.resize(temp, dsize=(img_H//2, img_W//2), interpolation=cv2.INTER_CUBIC)
+        ds.append(cv2.resize(temp, dsize=(img_H, img_W), interpolation=cv2.INTER_CUBIC))
 
-    ds = np.array(ds)
+    if isTest == False:
+        ds = np.array(ds)
     return ds
 
 def changeColorChannelLocation(file1,file2):
@@ -79,15 +80,11 @@ def changeColorChannelLocation(file1,file2):
 
     return data, target
 
-def getDataset(isTrain = True):
+def getDataset():
     path = []
-    if isTrain:
-        path.append("Images/BSDS200")
-        path.append("Images/T91")
-    else:
-        path.append("Images/BSDS100")
-        path.append("Images/Set14")
-        path.append("Images/urban100")
+
+    path.append("Images/BSDS200")
+    path.append("Images/T91")
 
     file = getImageFiles(path)
     file = DataAugmentation(file)
@@ -103,22 +100,32 @@ def getDataset(isTrain = True):
     dataset = td.TensorDataset(data, target)
 
     # split train, validation
-    if isTrain:
-        train_val_ratio = 0.8
 
-        train_size = int(data.shape[0] * train_val_ratio)
-        val_size = data.shape[0] - train_size
+    train_val_ratio = 0.8
 
-        train_data, val_data = td.random_split(dataset, [train_size, val_size])
+    train_size = int(data.shape[0] * train_val_ratio)
+    val_size = data.shape[0] - train_size
 
-        # define dataloader
+    train_data, val_data = td.random_split(dataset, [train_size, val_size])
 
-        train_dataloader = td.DataLoader(train_data, batch_size=64, shuffle=True)
-        val_dataloader = td.DataLoader(val_data, batch_size=64, shuffle=False)
-        print(len(train_dataloader), len(val_dataloader))
+    # define dataloader
 
-        return train_dataloader, val_dataloader
+    train_dataloader = td.DataLoader(train_data, batch_size=64, shuffle=True)
+    val_dataloader = td.DataLoader(val_data, batch_size=64, shuffle=False)
+    print(len(train_dataloader), len(val_dataloader))
 
-    else:
-        test_dataloader = td.DataLoader(dataset,batch_size=1,shuffle=False)
-        return test_dataloader
+    return train_dataloader, val_dataloader
+
+
+def getTestData():
+    path = []
+
+    path.append("Images/BSDS100")
+    path.append("Images/Set14")
+    path.append("Images/Set5")
+    path.append("Images/urban100")
+
+    data = getImageFiles(path)
+    target = downsampling(data,isTest=True)
+
+    return data, target
