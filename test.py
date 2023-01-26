@@ -3,6 +3,7 @@ import dataset
 import loop
 import numpy as np
 import utils
+from SRCNN_model import SRCNN
 
 def doTest():
 
@@ -14,8 +15,9 @@ def doTest():
     # load modelData
     vdsr = torch.load("models/VDSR_model.pt")
     vdsr.cpu()
-    srcnn = torch.load("models/SRCNN_model.pt")
-    srcnn.cpu()
+
+    srcnn = SRCNN().cpu()
+    srcnn.load_state_dict(torch.load("models/SRCNN_model_state_dict.pt"))
 
     preds = loop.test_loop(vdsr,ds)
     srcnns = loop.test_loop(srcnn,ds)
