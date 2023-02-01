@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 import torch
 import torch.utils.data as td
+import matplotlib.pyplot as plt
 
 def getImageFiles(path):
     img_path = []
@@ -68,17 +69,18 @@ def downsampling(file, isTest=False):
         img_W,img_H = file[i].shape[0], file[i].shape[1]
         temp = cv2.GaussianBlur(file[i], (0, 0), 1)
         temp = cv2.resize(temp, dsize=(img_H//2, img_W//2), interpolation=cv2.INTER_CUBIC)
-        ds.append(cv2.resize(temp, dsize=(img_H, img_W), interpolation=cv2.INTER_CUBIC))
+        temp = cv2.resize(temp, dsize=(img_H, img_W), interpolation=cv2.INTER_CUBIC)
+        ds.append(temp)
 
     if isTest == False:
         ds = np.array(ds)
     return ds
 
 def changeColorChannelLocation(file1,file2):
-    data = np.reshape(file1, (file1.shape[0], file1.shape[-1], file1.shape[1], file1.shape[2]))
-    target = np.reshape(file2, (file2.shape[0], file2.shape[-1], file2.shape[1], file2.shape[2]))
+    target = np.reshape(file1, (file1.shape[0], file1.shape[-1], file1.shape[1], file1.shape[2]))
+    data = np.reshape(file2, (file2.shape[0], file2.shape[-1], file2.shape[1], file2.shape[2]))
 
-    return data, target
+    return target, data
 
 def getDataset():
     path = []
@@ -88,7 +90,7 @@ def getDataset():
 
     file = getImageFiles(path)
     file = DataAugmentation(file)
-    tfile = getSubImages(file, 80)
+    tfile = getSubImages(file, 100)
     dfile = downsampling(tfile)
 
     target, data = changeColorChannelLocation(tfile,dfile)

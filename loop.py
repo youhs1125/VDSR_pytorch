@@ -12,6 +12,7 @@ def train_loop(model, dataloader, loss_fn, optimizer, writer, epoch):
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     lr = adjust_learning_rate(optimizer, epoch-1)
+    print("learning_rate = ",lr)
 
     for param_group in optimizer.param_groups:
         param_group["lr"] = lr
