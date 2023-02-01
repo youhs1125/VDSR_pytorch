@@ -6,7 +6,7 @@ import utils
 from SRCNN_model import SRCNN
 
 def doTest():
-
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
     # get dataloader
     origin, ds = dataset.getTestData()
@@ -14,9 +14,9 @@ def doTest():
 
     # load modelData
     vdsr = torch.load("models/VDSR_model.pt")
-    vdsr.cpu()
+    vdsr.to(device)
 
-    srcnn = SRCNN().cpu()
+    srcnn = SRCNN().to(device)
     srcnn.load_state_dict(torch.load("models/SRCNN_model_state_dict.pt"))
 
     preds = loop.test_loop(vdsr,ds)

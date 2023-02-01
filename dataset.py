@@ -121,8 +121,8 @@ def getTestData():
     path = []
 
     path.append("Images/BSDS100")
-    path.append("Images/Set14")
-    path.append("Images/Set5")
+    path.append("Images/Set14/original")
+    path.append("Images/Set5/original")
     path.append("Images/urban100")
 
     data = getImageFiles(path)

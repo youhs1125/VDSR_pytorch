@@ -23,14 +23,14 @@ def doTrain():
     loss_fn = nn.MSELoss()
 
     # define optimizer
-    learning_rate = 1e-4
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
-
+    learning_rate = 0.1
+    # optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=1e-4)
     # define tensorboard Logger
     writer = SummaryWriter()
 
     # define epoch
-    max_epoch = 100
+    max_epoch = 50
 
     for epoch in range(1, max_epoch + 1):
         # train

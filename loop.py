@@ -2,6 +2,7 @@ from tqdm import tqdm
 import torch
 import torch.nn as nn
 import cv2
+from utils import adjust_learning_rate
 
 # define train_loop
 
@@ -9,6 +10,12 @@ def train_loop(model, dataloader, loss_fn, optimizer, writer, epoch):
     size = len(dataloader.dataset)
     # use GPU
     device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    lr = adjust_learning_rate(optimizer, epoch-1)
+
+    for param_group in optimizer.param_groups:
+        param_group["lr"] = lr
+
     cur_loss = 0.0
     for iter, (X, y) in enumerate(tqdm(dataloader, position=0, leave=True, desc="train")):
         X, y = X.to(device), y.to(device)
@@ -25,7 +32,7 @@ def train_loop(model, dataloader, loss_fn, optimizer, writer, epoch):
         cur_loss += loss.item()
 
         if iter % 10 == 0:
-            train_loss = cur_loss / 100
+            train_loss = cur_loss / 10
             num_pred = pred.cpu().detach().numpy()
             num_y = y.cpu().numpy()
             train_PSNR = cv2.PSNR(num_pred*255, num_y*255)
@@ -58,13 +65,14 @@ def val_loop(model, dataloader, writer, epoch):
 
 def test_loop(model, ds):
     pred = []
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
     model.eval()
     with torch.no_grad():
         for img in ds:
             temp = img.reshape(img.shape[-1],img.shape[0],img.shape[1])
             input = torch.FloatTensor(temp)
-            pred.append(model(input).numpy())
+            pred.append(model(input.to(device)).cpu().numpy())
 
     return pred
 
