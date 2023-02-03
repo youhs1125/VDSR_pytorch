@@ -2,6 +2,7 @@ from tqdm import tqdm
 import torch
 import torch.nn as nn
 import cv2
+import numpy as np
 from utils import adjust_learning_rate
 
 # define train_loop
@@ -27,7 +28,7 @@ def train_loop(model, dataloader, loss_fn, optimizer, writer, epoch):
         optimizer.zero_grad()
         loss.backward()
 
-        nn.utils.clip_grad_norm(model.parameters(), 0.4)
+        nn.utils.clip_grad_norm_(model.parameters(), 0.4)
 
         optimizer.step()
         cur_loss += loss.item()
@@ -71,8 +72,8 @@ def test_loop(model, ds):
     model.eval()
     with torch.no_grad():
         for img in ds:
-            temp = img.reshape(img.shape[-1],img.shape[0],img.shape[1])
-            input = torch.FloatTensor(temp)
+            np_transpose = np.ascontiguousarray(img.transpose((2, 0, 1)))
+            input = torch.FloatTensor(np_transpose)
             pred.append(model(input.to(device)).cpu().numpy())
 
     return pred

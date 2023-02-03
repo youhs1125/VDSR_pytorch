@@ -2,31 +2,45 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
+def calculatePSNR(sr, hr, scale = 2):
+    diff = (sr - hr)/256
+    shave = scale
+    diff[:,:,0] = diff[:,:,0]*65.738/256
+    diff[:,:,1] = diff[:,:,1] * 129.057/256
+    diff[:,:,2] = diff[:,:,2] * 25.064/256
+
+    diff = np.sum(diff, axis=2)
+
+    valid = diff[shave:-shave, shave:-shave]
+    mse = np.mean(valid**2)
+    # print(mse)
+    return -10 * np.log10(mse)
+
 def adjust_learning_rate(optimizer,epoch):
     lr = 0.1 * (0.1**(epoch//10))
     return lr
 
-def changeColorChannel(input):
-    output = input.reshape(input.shape[1], input.shape[2], input.shape[0])
-    return output
+def backChannel(img):
+    np_transpose = np.ascontiguousarray(img.transpose((1, 2, 0)))
+    return np_transpose
 def comparePSNR(origins, bicubic, preds1, preds2 = None, preds3 = None):
     # compare predicts with bicubic
     mPSNR = 0
     bPSNR = 0
     sPSNR = 0
     for i in range(len(preds1)):
-        pred_num = changeColorChannel(preds1[i])
+        pred_num = backChannel(preds1[i])
         pred_num = pred_num * 255
 
-        pred_num2 = changeColorChannel(preds2[i])
+        pred_num2 = backChannel(preds2[i])
         srcnn = pred_num2*255
         testi = origins[i]*255
         bicubici = bicubic[i]*255
 
         # print(pred_num.shape, testi.shape, bicubici.shape, srcnn.shape)
-        predPSNR = cv2.PSNR(pred_num, testi)
-        bicubicPSNR = cv2.PSNR(bicubici, testi)
-        srcnnPSNR = cv2.PSNR(srcnn,testi)
+        predPSNR = calculatePSNR(pred_num, testi)
+        bicubicPSNR = calculatePSNR(bicubici, testi)
+        srcnnPSNR = calculatePSNR(srcnn,testi)
         # print("MODEL --- PSNR: ", predPSNR)
         # print("BICUBIC - PSNR: ", bicubicPSNR)
 
@@ -38,12 +52,9 @@ def comparePSNR(origins, bicubic, preds1, preds2 = None, preds3 = None):
             if preds2 == None:
                 print(f"PSNR(of images below) VDSR : {predPSNR} Bicubic Interpolation: {bicubicPSNR}")
                 fig, axes = plt.subplots(1, 3, figsize=(20, 36))
-                print(f"PSNR(avg) VDSR: {mPSNR / len(preds1)},  Bicubic Interpolation: {bPSNR / len(preds1)}")
             else:
                 print(f"PSNR(of images below) VDSR : {predPSNR} Bicubic Interpolation: {bicubicPSNR} SRCNN: {srcnnPSNR}")
                 fig, axes = plt.subplots(1,4, figsize = (20,48))
-                print(
-                    f"PSNR(avg) VDSR: {mPSNR / len(preds1)},  Bicubic Interpolation: {bPSNR / len(preds1)},   SRCNN: {sPSNR / len(preds1)}")
 
             pred_num /= 255.0
             bicubici /= 255.0
@@ -66,3 +77,7 @@ def comparePSNR(origins, bicubic, preds1, preds2 = None, preds3 = None):
                 axes[3].imshow(srcnn)
                 axes[3].set_title("SRCNN")
             plt.show()
+    if preds2 == None:
+        print(f"PSNR(avg) VDSR: {mPSNR / len(preds1)},  Bicubic Interpolation: {bPSNR / len(preds1)}")
+    else:
+        print(f"PSNR(avg) VDSR: {mPSNR / len(preds1)},  Bicubic Interpolation: {bPSNR / len(preds1)},   SRCNN: {sPSNR / len(preds1)}")

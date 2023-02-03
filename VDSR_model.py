@@ -16,13 +16,19 @@ class VDSR(nn.Module):
     self.midLayer = nn.Sequential(*mid)
     self.outputLayer = nn.Sequential(
         nn.Conv2d(64,3,kernel_size=3,padding=1),
-        nn.ReLU()
     )
   def forward(self, X):
-    residual = X.clone()
-
+    residual = X
     X = self.inputLayer(X)
     X = self.midLayer(X)
     X = self.outputLayer(X)
     X = torch.add(X,residual)
     return X
+
+
+if __name__ == "__main__":
+    model = VDSR()
+    ten = torch.rand(size=(1,3,80,80))
+    pred = model(ten)
+    print(model)
+    print(pred.shape)

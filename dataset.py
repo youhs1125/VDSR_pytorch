@@ -76,11 +76,12 @@ def downsampling(file, isTest=False):
         ds = np.array(ds)
     return ds
 
-def changeColorChannelLocation(file1,file2):
-    target = np.reshape(file1, (file1.shape[0], file1.shape[-1], file1.shape[1], file1.shape[2]))
-    data = np.reshape(file2, (file2.shape[0], file2.shape[-1], file2.shape[1], file2.shape[2]))
+def changeColorChannelLocation(file1, file2):
+    data = np.ascontiguousarray(file1.transpose((0,3,1,2)))
+    target = np.ascontiguousarray(file2.transpose((0,3,1,2)))
 
-    return target, data
+    return data, target
+
 
 def getDataset():
     path = []
@@ -122,10 +123,10 @@ def getDataset():
 def getTestData():
     path = []
 
-    path.append("Images/BSDS100")
+    # path.append("Images/BSDS100")
     path.append("Images/Set14/original")
     path.append("Images/Set5/original")
-    path.append("Images/urban100")
+    # path.append("Images/urban100")
 
     data = getImageFiles(path)
     target = downsampling(data,isTest=True)
