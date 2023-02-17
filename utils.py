@@ -13,7 +13,7 @@ def calculatePSNR(sr, hr, scale = 2):
 
     valid = diff[shave:-shave, shave:-shave]
     mse = np.mean(valid**2)
-    # print(mse)
+
     return -10 * np.log10(mse)
 
 def adjust_learning_rate(optimizer,epoch):

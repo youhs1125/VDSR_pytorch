@@ -18,7 +18,7 @@ class VDSR(nn.Module):
         nn.Conv2d(64,3,kernel_size=3,padding=1),
     )
   def forward(self, X):
-    residual = X
+    residual = X.clone().detach()
     X = self.inputLayer(X)
     X = self.midLayer(X)
     X = self.outputLayer(X)

@@ -91,7 +91,7 @@ def getDataset():
 
     file = getImageFiles(path)
     file = DataAugmentation(file)
-    tfile = getSubImages(file, 100)
+    tfile = getSubImages(file, 41)
     dfile = downsampling(tfile)
 
     target, data = changeColorChannelLocation(tfile,dfile)

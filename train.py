@@ -28,7 +28,7 @@ def doTrain():
     writer = SummaryWriter()
 
     # define epoch
-    max_epoch = 50
+    max_epoch = 150
 
     for epoch in range(1, max_epoch + 1):
         # train
