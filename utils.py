@@ -21,6 +21,7 @@ def adjust_learning_rate(optimizer,epoch):
     return lr
 
 def backChannel(img):
+    # print(img.shape)
     np_transpose = np.ascontiguousarray(img.transpose((1, 2, 0)))
     return np_transpose
 def comparePSNR(origins, bicubic, preds1, preds2 = None, preds3 = None):
@@ -34,7 +35,7 @@ def comparePSNR(origins, bicubic, preds1, preds2 = None, preds3 = None):
 
         pred_num2 = backChannel(preds2[i])
         srcnn = pred_num2*255
-        testi = origins[i]*255
+        testi = backChannel(origins[i]*255)
         bicubici = bicubic[i]*255
 
         # print(pred_num.shape, testi.shape, bicubici.shape, srcnn.shape)
