@@ -40,7 +40,7 @@ def train_loop(model, dataloader, loss_fn, optimizer, writer, epoch):
             num_y = y.cpu().numpy()
             train_PSNR = cv2.PSNR(num_pred*255, num_y*255)
 
-            print(f"{iter}-train_loss: {train_loss} PSNR: {train_PSNR}")
+            # print(f"{iter}-train_loss: {train_loss} PSNR: {train_PSNR}")
             writer.add_scalar("Loss/train", train_loss, epoch)
             writer.add_scalar("PSNR/train", train_PSNR, epoch)
 

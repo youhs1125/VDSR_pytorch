@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 def calculatePSNR(sr, hr, scale = 2):
     diff = (sr - hr)/256
     shave = scale
-    diff[:,:,0] = diff[:,:,0]*65.738/256
+    diff[:,:,0] = diff[:,:,0] * 65.738/256
     diff[:,:,1] = diff[:,:,1] * 129.057/256
     diff[:,:,2] = diff[:,:,2] * 25.064/256
 
@@ -42,6 +42,7 @@ def comparePSNR(origins, bicubic, preds1, preds2 = None, preds3 = None):
         predPSNR = calculatePSNR(pred_num, testi)
         bicubicPSNR = calculatePSNR(bicubici, testi)
         srcnnPSNR = calculatePSNR(srcnn,testi)
+        print(srcnnPSNR)
         # print("MODEL --- PSNR: ", predPSNR)
         # print("BICUBIC - PSNR: ", bicubicPSNR)
 

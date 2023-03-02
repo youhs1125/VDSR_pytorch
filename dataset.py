@@ -67,8 +67,8 @@ def downsampling(file, isTest=False):
     ds = []
     for i in range(len(file)):
         img_W,img_H = file[i].shape[0], file[i].shape[1]
-        temp = cv2.GaussianBlur(file[i], (0, 0), 1)
-        temp = cv2.resize(temp, dsize=(img_H//2, img_W//2), interpolation=cv2.INTER_CUBIC)
+        # temp = cv2.GaussianBlur(file[i], (0, 0), 1)
+        temp = cv2.resize(file[i], dsize=(img_H//2, img_W//2), interpolation=cv2.INTER_CUBIC)
         temp = cv2.resize(temp, dsize=(img_H, img_W), interpolation=cv2.INTER_CUBIC)
         ds.append(temp)
 
@@ -77,15 +77,17 @@ def downsampling(file, isTest=False):
     return ds
 
 def changeColorChannelLocation(file1, file2):
-    if len(file1.shape) != 3:
+    print("shape",file1.shape)
+    if len(file1.shape) != 4:
         file1 = np.expand_dims(file1, axis=2)
         file1 = np.concatenate([file1] * 3, 2)
         file2 = np.expand_dims(file2, axis=2)
         file2 = np.concatenate([file2] * 3, 2)
 
+
     data = np.ascontiguousarray(file1.transpose((0,3,1,2)))
     target = np.ascontiguousarray(file2.transpose((0,3,1,2)))
-
+    print("shape",data.shape)
     return data, target
 
 
@@ -136,10 +138,10 @@ def changeChannels(ds):
 def getTestData():
     path = []
 
-    # path.append("Images/BSDS100")
-    path.append("Images/Set14/original")
+    # path.append("Images/B100/HR")
+    # path.append("Images/Set14/original")
     path.append("Images/Set5/original")
-    # path.append("Images/urban100")
+    # path.append("Images/urban100/HR")
 
     data = getImageFiles(path)
     target = downsampling(data,isTest=True)
